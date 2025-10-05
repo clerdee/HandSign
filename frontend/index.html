@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandSign - Filipino Sign Language Translator</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div class="header">
+        <h1>👋 HandSign</h1>
+        <p>AI-Powered Filipino Sign Language Translator</p>
+    </div>
+
+    <div class="container">
+        <div class="panel">
+            <div class="panel-header">
+                📹 Live Camera Feed
+            </div>
+            <div class="camera-container">
+                <div class="camera-status">
+                    <span class="status-dot"></span>
+                    CAMERA ACTIVE
+                </div>
+                <video id="video" autoplay playsinline></video>
+                <div class="hand-overlay"></div>
+            </div>
+            <div class="detection-status">
+                <strong>Detection Status:</strong> Hand detected | <strong>Confidence:</strong> 95% | <strong>Sign:</strong> Processing...
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                📄 Translated Text
+            </div>
+            <div class="translated-box">
+                <div class="translated-text">"Kumusta"</div>
+            </div>
+
+            <div class="controls-section">
+                <div class="controls-header">
+                    🎮 Controls
+                </div>
+                <button class="button button-primary">
+                    🔊 Play Audio
+                </button>
+                <button class="button button-success">
+                    💾 Save Translation
+                </button>
+                <button class="button button-secondary">
+                    🗑️ Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script/index.js"></script>
+</body>
+</html>
