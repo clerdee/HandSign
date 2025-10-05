@@ -80,82 +80,91 @@ if (loginTab && registerTab && loginForm && registerForm) {
 }
 
 // =========================
-// Form Handling (Login/Register)
+// Login Form Submission
 // =========================
 if (loginForm) {
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
+  loginForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const submitBtn = loginForm.querySelector('.btn-submit');
+    submitBtn.textContent = 'Signing in...';
+    submitBtn.disabled = true;
 
-        if (!email || !password) {
-            alert('Please fill in all fields');
-            return;
-        }
-
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            alert('Please enter a valid email address');
-            return;
-        }
-
-        const submitBtn = e.target.querySelector('.btn-submit');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Signing in...';
-        submitBtn.disabled = true;
-
-        setTimeout(() => {
-            alert('Login successful! Redirecting to HandSign translator...');
-            // window.location.href = 'index.html';
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-            closeModal();
-        }, 1500);
+    fetch('http://localhost:5000/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('Welcome, ' + data.user.name + ' (' + data.user.role + ')!');
+        // Optionally, redirect or save login info
+        closeModal();
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(() => alert('Server error. Try again later.'))
+    .finally(() => {
+      submitBtn.textContent = 'Login';
+      submitBtn.disabled = false;
     });
+  });
 }
 
+// =========================
+// Register Form Submission
+// =========================
 if (registerForm) {
-    registerForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
+  registerForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const submitBtn = registerForm.querySelector('.btn-submit');
+    submitBtn.textContent = 'Creating account...';
+    submitBtn.disabled = true;
 
-        if (!name || !email || !password || !confirmPassword) {
-            alert('Please fill in all fields');
-            return;
-        }
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      submitBtn.textContent = 'Register';
+      submitBtn.disabled = false;
+      return;
+    }
 
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            alert('Please enter a valid email address');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-
-        if (password.length < 6) {
-            alert('Password must be at least 6 characters long');
-            return;
-        }
-
-        const submitBtn = e.target.querySelector('.btn-submit');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Creating account...';
-        submitBtn.disabled = true;
-
-        setTimeout(() => {
-            alert('Account created successfully! Redirecting to HandSign translator...');
-            // window.location.href = 'index.html';
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-            closeModal();
-        }, 1500);
+    fetch('http://localhost:5000/api/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name, email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('Account created! You can now log in.');
+        closeModal();
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(() => alert('Server error. Try again later.'))
+    .finally(() => {
+      submitBtn.textContent = 'Register';
+      submitBtn.disabled = false;
     });
+  });
+}
+
+// =========================
+// Helper: Close Modal Function
+// (adjust as per your modal code)
+function closeModal() {
+  const authModal = document.getElementById('authModal');
+  if (authModal) {
+    authModal.style.display = 'none';
+  }
 }
 
 // =========================
