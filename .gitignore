@@ -1,0 +1,24 @@
+# Ignore Python virtual environments
+.venv/
+venv/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore large model/data files if needed
+*.h5
+*.pkl
+*.npz
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore environment files
+.env
+
+# Ignore build/temp files
+*.log
+*.tmp
+*.bak
