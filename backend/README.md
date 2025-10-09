@@ -1,5 +1,23 @@
 python 3.11
+pip install tensorflow (v 2.14.0)
+pip install mediapipe (v 0.10.14)
 
-pip install tensorflow
-pip install mediapipe
+1. Collect hand signal data
+python collectdata.py 
+python data.py (training yata ito ng hand data)
+python trainmodel.py
+python app.py (testing sign languages)
 
+2. How to start backend server & frontend
+python server.py
+
+3. Do you need .venv when you clone your repo on another laptop?
+python -m venv .venv
+.venv\Scripts\activate     # (on Windows)
+pip install -r requirements.txt
+
+4. python ai/ml
+function.py
+app.py
+
+5. 

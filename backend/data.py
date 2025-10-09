@@ -1,6 +1,9 @@
 from function import *
 from time import sleep
 
+# Update actions to include all uppercase letters A-Z
+actions = np.array([chr(i) for i in range(ord('A'), ord('Z')+1)])
+
 for action in actions: 
     for sequence in range(no_sequences):
         try: 
@@ -62,4 +65,3 @@ with mp_hands.Hands(
                     
     # cap.release()
     cv2.destroyAllWindows()
-

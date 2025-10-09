@@ -80,33 +80,49 @@ if (loginTab && registerTab && loginForm && registerForm) {
 }
 
 // =========================
-// Login Form Submission
+// ✅ LOGIN FORM SUBMISSION (fixed Flask compatibility)
 // =========================
 if (loginForm) {
   loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
     const submitBtn = loginForm.querySelector('.btn-submit');
+
+    if (!email || !password) {
+      alert("Please fill in both fields.");
+      return;
+    }
+
     submitBtn.textContent = 'Signing in...';
     submitBtn.disabled = true;
 
-    fetch('http://localhost:5000/api/login', {
+    fetch('http://127.0.0.1:5000/api/login', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ email, password })
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        alert('Welcome, ' + data.user.name + ' (' + data.user.role + ')!');
-        // Optionally, redirect or save login info
+    .then(res => res.json().then(data => ({ status: res.status, body: data })))
+    .then(({ status, body }) => {
+      if (status === 200 && body.user) {
+        // ✅ Store user info (optional)
+        localStorage.setItem('user', JSON.stringify(body.user));
+
+        alert(`Welcome, ${body.user.name} (${body.user.role})!`);
         closeModal();
+
+        // ✅ Redirect by role
+        if (body.user.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'index.html';
+        }
       } else {
-        alert(data.message);
+        alert(body.message || "Invalid email or password.");
       }
     })
-    .catch(() => alert('Server error. Try again later.'))
+    .catch(() => alert('Server error. Please try again later.'))
     .finally(() => {
       submitBtn.textContent = 'Login';
       submitBtn.disabled = false;
@@ -115,38 +131,41 @@ if (loginForm) {
 }
 
 // =========================
-// Register Form Submission
+// ✅ REGISTER FORM SUBMISSION
 // =========================
 if (registerForm) {
   registerForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const submitBtn = registerForm.querySelector('.btn-submit');
-    submitBtn.textContent = 'Creating account...';
-    submitBtn.disabled = true;
 
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+    const submitBtn = registerForm.querySelector('.btn-submit');
+
+    if (!name || !email || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
     if (password !== confirmPassword) {
       alert('Passwords do not match');
-      submitBtn.textContent = 'Register';
-      submitBtn.disabled = false;
       return;
     }
 
-    fetch('http://localhost:5000/api/register', {
+    submitBtn.textContent = 'Creating account...';
+    submitBtn.disabled = true;
+
+    fetch('http://127.0.0.1:5000/api/register', {  // ✅ Flask backend
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ name, email, password })
     })
     .then(res => res.json())
     .then(data => {
-      if (data.success) {
-        alert('Account created! You can now log in.');
-        closeModal();
-      } else {
-        alert(data.message);
+      alert(data.message);
+      if (data.message.includes('successfully')) {
+        // ✅ Automatically switch to login tab after register
+        loginTab.click();
       }
     })
     .catch(() => alert('Server error. Try again later.'))
@@ -155,16 +174,6 @@ if (registerForm) {
       submitBtn.disabled = false;
     });
   });
-}
-
-// =========================
-// Helper: Close Modal Function
-// (adjust as per your modal code)
-function closeModal() {
-  const authModal = document.getElementById('authModal');
-  if (authModal) {
-    authModal.style.display = 'none';
-  }
 }
 
 // =========================

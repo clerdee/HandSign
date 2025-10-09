@@ -15,10 +15,11 @@
     <div class="container">
         <div class="panel">
             <div class="panel-header">
-                📹 Live Camera Feed
+                <span>📹 Live Camera Feed</span>
+                <button id="toggleCameraBtn">Turn Off Camera</button>
             </div>
             <div class="camera-container">
-                <div class="camera-status">
+                <div id="cameraStatus" class="camera-status online">
                     <span class="status-dot"></span>
                     CAMERA ACTIVE
                 </div>
@@ -52,6 +53,22 @@
                     🗑️ Clear
                 </button>
             </div>
+        </div>
+    </div>
+
+        <!-- 🔹 Reminder Modal -->
+    <div id="reminderModal" class="modal">
+        <div class="modal-content">
+            <h2>📢 Important Reminders</h2>
+            <ul>
+                <li>✅ Allow your browser to access the camera.</li>
+                <li>✅ Close or exit all other applications that may be using the camera.</li>
+                <li>✅ Ensure you have good lighting for clearer hand detection.</li>
+                <li>✅ Keep your hand steady and within the camera frame.</li>
+                <li>✅ Avoid background distractions or clutter.</li>
+                <li>✅ Make sure your webcam lens is clean for accurate translation.</li>
+            </ul>
+            <button id="closeModalBtn">Got it!</button>
         </div>
     </div>
 

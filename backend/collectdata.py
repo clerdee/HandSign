@@ -1,7 +1,7 @@
 import os
 import cv2
 cap=cv2.VideoCapture(0)
-directory='backend/Image/'
+directory='Image'
 while True:
     _,frame=cap.read()
     count = {
@@ -70,52 +70,97 @@ while True:
         cv2.imwrite(directory+'B/'+str(count['b'])+'.png',frame)
     if interrupt & 0xFF == ord('c'):
         cv2.imwrite(directory+'C/'+str(count['c'])+'.png',frame)
+
     if interrupt & 0xFF == ord('d'):
-        cv2.imwrite(directory+'D/'+str(count['d'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'D', f"{count['d']}.png"), frame)
     if interrupt & 0xFF == ord('e'):
-        cv2.imwrite(directory+'E/'+str(count['e'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'E', f"{count['e']}.png"), frame)
     if interrupt & 0xFF == ord('f'):
-        cv2.imwrite(directory+'F/'+str(count['f'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'F', f"{count['f']}.png"), frame)
     if interrupt & 0xFF == ord('g'):
-        cv2.imwrite(directory+'G/'+str(count['g'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'G', f"{count['g']}.png"), frame)
     if interrupt & 0xFF == ord('h'):
-        cv2.imwrite(directory+'H/'+str(count['h'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'H', f"{count['h']}.png"), frame)
     if interrupt & 0xFF == ord('i'):
-        cv2.imwrite(directory+'I/'+str(count['i'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'I', f"{count['i']}.png"), frame)
     if interrupt & 0xFF == ord('j'):
-        cv2.imwrite(directory+'J/'+str(count['j'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'J', f"{count['j']}.png"), frame)
     if interrupt & 0xFF == ord('k'):
-        cv2.imwrite(directory+'K/'+str(count['k'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'K', f"{count['k']}.png"), frame)
     if interrupt & 0xFF == ord('l'):
-        cv2.imwrite(directory+'L/'+str(count['l'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'L', f"{count['l']}.png"), frame)
     if interrupt & 0xFF == ord('m'):
-        cv2.imwrite(directory+'M/'+str(count['m'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'M', f"{count['m']}.png"), frame)
     if interrupt & 0xFF == ord('n'):
-        cv2.imwrite(directory+'N/'+str(count['n'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'N', f"{count['n']}.png"), frame)
     if interrupt & 0xFF == ord('o'):
-        cv2.imwrite(directory+'O/'+str(count['o'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'O', f"{count['o']}.png"), frame)
     if interrupt & 0xFF == ord('p'):
-        cv2.imwrite(directory+'P/'+str(count['p'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'P', f"{count['p']}.png"), frame)
     if interrupt & 0xFF == ord('q'):
-        cv2.imwrite(directory+'Q/'+str(count['q'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'Q', f"{count['q']}.png"), frame)
     if interrupt & 0xFF == ord('r'):
-        cv2.imwrite(directory+'R/'+str(count['r'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'R', f"{count['r']}.png"), frame)
     if interrupt & 0xFF == ord('s'):
-        cv2.imwrite(directory+'S/'+str(count['s'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'S', f"{count['s']}.png"), frame)
     if interrupt & 0xFF == ord('t'):
-        cv2.imwrite(directory+'T/'+str(count['t'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'T', f"{count['t']}.png"), frame)
     if interrupt & 0xFF == ord('u'):
-        cv2.imwrite(directory+'U/'+str(count['u'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'U', f"{count['u']}.png"), frame)
     if interrupt & 0xFF == ord('v'):
-        cv2.imwrite(directory+'V/'+str(count['v'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'V', f"{count['v']}.png"), frame)
     if interrupt & 0xFF == ord('w'):
-        cv2.imwrite(directory+'W/'+str(count['w'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'W', f"{count['w']}.png"), frame)
     if interrupt & 0xFF == ord('x'):
-        cv2.imwrite(directory+'X/'+str(count['x'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'X', f"{count['x']}.png"), frame)
     if interrupt & 0xFF == ord('y'):
-        cv2.imwrite(directory+'Y/'+str(count['y'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'Y', f"{count['y']}.png"), frame)
     if interrupt & 0xFF == ord('z'):
-        cv2.imwrite(directory+'Z/'+str(count['z'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'Z', f"{count['z']}.png"), frame)
+
+
+    # if interrupt & 0xFF == ord('f'):
+    #     cv2.imwrite(directory+'F/'+str(count['f'])+'.png',frame)
+    # if interrupt & 0xFF == ord('g'):
+    #     cv2.imwrite(directory+'G/'+str(count['g'])+'.png',frame)
+    # if interrupt & 0xFF == ord('h'):
+    #     cv2.imwrite(directory+'H/'+str(count['h'])+'.png',frame)
+    # if interrupt & 0xFF == ord('i'):
+    #     cv2.imwrite(directory+'I/'+str(count['i'])+'.png',frame)
+    # if interrupt & 0xFF == ord('j'):
+    #     cv2.imwrite(directory+'J/'+str(count['j'])+'.png',frame)
+    # if interrupt & 0xFF == ord('k'):
+    #     cv2.imwrite(directory+'K/'+str(count['k'])+'.png',frame)
+    # if interrupt & 0xFF == ord('l'):
+    #     cv2.imwrite(directory+'L/'+str(count['l'])+'.png',frame)
+    # if interrupt & 0xFF == ord('m'):
+    #     cv2.imwrite(directory+'M/'+str(count['m'])+'.png',frame)
+    # if interrupt & 0xFF == ord('n'):
+    #     cv2.imwrite(directory+'N/'+str(count['n'])+'.png',frame)
+    # if interrupt & 0xFF == ord('o'):
+    #     cv2.imwrite(directory+'O/'+str(count['o'])+'.png',frame)
+    # if interrupt & 0xFF == ord('p'):
+    #     cv2.imwrite(directory+'P/'+str(count['p'])+'.png',frame)
+    # if interrupt & 0xFF == ord('q'):
+    #     cv2.imwrite(directory+'Q/'+str(count['q'])+'.png',frame)
+    # if interrupt & 0xFF == ord('r'):
+    #     cv2.imwrite(directory+'R/'+str(count['r'])+'.png',frame)
+    # if interrupt & 0xFF == ord('s'):
+    #     cv2.imwrite(directory+'S/'+str(count['s'])+'.png',frame)
+    # if interrupt & 0xFF == ord('t'):
+    #     cv2.imwrite(directory+'T/'+str(count['t'])+'.png',frame)
+    # if interrupt & 0xFF == ord('u'):
+    #     cv2.imwrite(directory+'U/'+str(count['u'])+'.png',frame)
+    # if interrupt & 0xFF == ord('v'):
+    #     cv2.imwrite(directory+'V/'+str(count['v'])+'.png',frame)
+    # if interrupt & 0xFF == ord('w'):
+    #     cv2.imwrite(directory+'W/'+str(count['w'])+'.png',frame)
+    # if interrupt & 0xFF == ord('x'):
+    #     cv2.imwrite(directory+'X/'+str(count['x'])+'.png',frame)
+    # if interrupt & 0xFF == ord('y'):
+    #     cv2.imwrite(directory+'Y/'+str(count['y'])+'.png',frame)
+    # if interrupt & 0xFF == ord('z'):
+    #     cv2.imwrite(directory+'Z/'+str(count['z'])+'.png',frame)
 
 
 cap.release()
