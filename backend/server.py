@@ -1,6 +1,9 @@
+# ==============================
+# server.py
+# ==============================
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from db import create_user_table, register_user
+from db import create_user_table, register_user, get_connection
 import os
 import webbrowser
 import threading
@@ -14,6 +17,7 @@ from model_handler import predict_sign
 
 # Ensure table exists at server start
 create_user_table()
+
 
 # ==============================
 # AI Prediction Route
@@ -31,8 +35,6 @@ def predict():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
-    
-    print("📸 Frame received for prediction")
 
 
 # ==============================
@@ -54,6 +56,7 @@ def register():
         return jsonify({"message": "User registered successfully"}), 200
     else:
         return jsonify({"message": "Email already exists"}), 409
+
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -79,6 +82,46 @@ def login():
     else:
         return jsonify({"message": "Invalid email or password"}), 401
 
+
+@app.route('/api/users', methods=['GET'])
+def get_users():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECTm id, name, email, role FROM users")
+        users = cursor.fetchall()
+        conn.close()
+
+        user_list = [
+            {"id": u[0], "name": u[1], "email": u[2], "role": u[3]}
+            for u in users
+        ]
+        return jsonify(user_list), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+
+@app.route('/api/users/<int:user_id>/role', methods=['PUT'])
+def update_user_role(user_id):
+    try:
+        data = request.get_json()
+        new_role = data.get("role")
+
+        if new_role not in ("admin", "user"):
+            return jsonify({"error": "Invalid role"}), 400
+
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET role = ? WHERE id = ?", (new_role, user_id))
+        conn.commit()
+        conn.close()
+
+        return jsonify({"message": "User role updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+
 # ==============================
 # FRONTEND ROUTES
 # ==============================
@@ -86,16 +129,18 @@ def login():
 def serve_frontend():
     return send_from_directory(app.static_folder, 'login.html')
 
-# Serve other frontend files (CSS, JS, images, etc.)
+
 @app.route('/<path:path>')
 def serve_static_files(path):
     return send_from_directory(app.static_folder, path)
+
 
 # ==============================
 # AUTO-OPEN FRONTEND ON START
 # ==============================
 def open_browser():
     webbrowser.open_new("http://127.0.0.1:5000/")
+
 
 if __name__ == '__main__':
     # Only open the browser in the *main* process (not the reloader)

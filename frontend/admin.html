@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HandSign Admin Dashboard</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="admin-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2 class="logo">HandSign</h2>
+      <nav>
+        <ul>
+          <li><a href="#" class="nav-link active" data-section="dashboard">Dashboard</a></li>
+          <li><a href="#" class="nav-link" data-section="users">Users</a></li>
+          <li><a href="#" class="nav-link" data-section="translation">Translations</a></li>
+          <li><a href="#" id="logoutBtn" class="nav-link">Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <h1 id="sectionTitle">Dashboard</h1>
+      <div id="contentArea"></div>
+    </main>
+  </div>
+
+  <!-- Chart.js & Admin Script -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script/admin.js"></script>
+  <script src="script/users.js"></script>
+</body>
+</html>

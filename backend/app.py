@@ -1,3 +1,4 @@
+# app.py
 from function import *
 from keras.utils import to_categorical
 from keras.models import model_from_json
@@ -27,10 +28,10 @@ sequence = []
 sentence = []
 accuracy=[]
 predictions = []
-threshold = 0.8 
+threshold = 0.6 
 
 cap = cv2.VideoCapture(0)
-# cap = cv2.VideoCapture("https://192.168.43.41:8080/video")
+print("Camera opened:", cap.isOpened())
 # Set mediapipe model 
 with mp_hands.Hands(
     model_complexity=0,
@@ -48,16 +49,16 @@ with mp_hands.Hands(
         # frame=cv2.putText(frame,"Active Region",(75,25),cv2.FONT_HERSHEY_COMPLEX_SMALL,2,255,2)
         image, results = mediapipe_detection(cropframe, hands)
         # print(results)
-        
+
         # Draw landmarks
         # draw_styled_landmarks(image, results)
         # 2. Prediction logic
         keypoints = extract_keypoints(results)
         sequence.append(keypoints)
-        sequence = sequence[-30:]
+        sequence = sequence[-50:]
 
         try: 
-            if len(sequence) == 30:
+            if len(sequence) == 50:
                 res = model.predict(np.expand_dims(sequence, axis=0))[0]
                 print(actions[np.argmax(res)])
                 predictions.append(np.argmax(res))
@@ -87,7 +88,7 @@ with mp_hands.Hands(
         cv2.rectangle(frame, (0,0), (300, 40), (245, 117, 16), -1)
         cv2.putText(frame,"Output: "+' '.join(sentence)+''.join(accuracy), (3,30), 
                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        
+
         # Show to screen
         cv2.imshow('OpenCV Feed', frame)
 

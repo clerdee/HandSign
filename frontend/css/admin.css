@@ -1,0 +1,143 @@
+/* ========== GLOBAL RESET ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+html, body {
+  height: 100%;
+  background: #f5f6fa;
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* ========== LAYOUT WRAPPER ========== */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+  width: 240px;
+  background: #1f1f3d;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar ul {
+  list-style: none;
+  flex-grow: 1;
+}
+
+.sidebar ul li {
+  margin-bottom: 10px;
+}
+
+.nav-link {
+  display: block;
+  text-decoration: none;
+  color: #bbb;
+  padding: 12px 18px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: #6c63ff;
+  color: #fff;
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+  flex: 1;
+  padding: 40px;
+  background: linear-gradient(135deg, #eef2f3, #dfe9f3);
+  overflow-y: auto;
+}
+
+#sectionTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+/* ========== SECTION BOX ========== */
+.section-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.section-box h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* ========== TABLES ========== */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.admin-table thead {
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  color: #fff;
+}
+
+.admin-table tbody tr:nth-child(even) {
+  background: rgba(243, 244, 246, 0.5);
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(229, 231, 235, 0.7);
+}
+
+/* ========== CHART AREA ========== */
+canvas {
+  width: 100%;
+  height: 300px;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    padding: 100px 20px 40px;
+  }
+}

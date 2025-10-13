@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,13 +8,18 @@
     <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-    <div class="header">
-        <h1>👋 HandSign</h1>
-        <p>AI-Powered Filipino Sign Language Translator</p>
-    </div>
+    <header class="header">
+        <div class="header-left">
+            <h1>👋 HandSign</h1>
+            <p>AI-Powered Filipino Sign Language Translator</p>
+        </div>
+        <div class="header-right">
+            <button id="logoutBtn" class="button button-danger">🚪 Logout</button>
+        </div>
+    </header>
 
-    <div class="container">
-        <div class="panel">
+    <main class="container">
+        <section class="panel">
             <div class="panel-header">
                 <span>📹 Live Camera Feed</span>
                 <button id="toggleCameraBtn">Turn Off Camera</button>
@@ -27,36 +33,35 @@
                 <div class="hand-overlay"></div>
             </div>
             <div class="detection-status">
-                <strong>Detection Status:</strong> Hand detected | <strong>Confidence:</strong> 95% | <strong>Sign:</strong> Processing...
+                <strong>Detection Status:</strong> Hand detected | 
+                <strong>Confidence:</strong> 95% | 
+                <strong>Sign:</strong> Processing...
             </div>
-        </div>
+        </section>
 
-        <div class="panel">
+        <section class="panel">
             <div class="panel-header">
                 📄 Translated Text
             </div>
             <div class="translated-box">
-                <div class="translated-text">"Kumusta"</div>
+                <div class="translated-text" id="translatedText">"Kumusta"</div>
             </div>
 
             <div class="controls-section">
                 <div class="controls-header">
                     🎮 Controls
                 </div>
-                <button class="button button-primary">
-                    🔊 Play Audio
-                </button>
-                <button class="button button-success">
-                    💾 Save Translation
-                </button>
-                <button class="button button-secondary">
-                    🗑️ Clear
-                </button>
+                <div class="controls-buttons">
+                    <button class="button button-warning" id="backspaceBtn">⌫ Backspace</button>
+                    <button class="button button-primary">🔊 Play Audio</button>
+                    <button class="button button-secondary">🗑️ Clear</button>
+                    <button class="button button-success">💾 Save Translation</button>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
-        <!-- 🔹 Reminder Modal -->
+    <!-- 🔹 Reminder Modal -->
     <div id="reminderModal" class="modal">
         <div class="modal-content">
             <h2>📢 Important Reminders</h2>

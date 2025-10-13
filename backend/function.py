@@ -1,4 +1,4 @@
-#import dependency
+# function.py
 import cv2
 import numpy as np
 import os
@@ -26,17 +26,36 @@ def draw_styled_landmarks(image, results):
             mp_drawing_styles.get_default_hand_landmarks_style(),
             mp_drawing_styles.get_default_hand_connections_style())
 
+# Function to extract hand keypoints
+# def extract_keypoints(results):
+#     if results.multi_hand_landmarks:
+#         for hand_landmarks in results.multi_hand_landmarks:
+#             rh = np.array([[res.x, res.y, res.z] for res in hand_landmarks.landmark]).flatten()
+#             return rh
+#     else:
+#         return np.zeros(21 * 3)
 
 def extract_keypoints(results):
     if results.multi_hand_landmarks:
-      for hand_landmarks in results.multi_hand_landmarks:
-        rh = np.array([[res.x, res.y, res.z] for res in hand_landmarks.landmark]).flatten() if hand_landmarks else np.zeros(21*3)
-        return(np.concatenate([rh]))
-# Path for exported data, numpy arrays
-DATA_PATH = os.path.join('MP_Data') 
+        for hand_landmarks in results.multi_hand_landmarks:
+            rh = np.array([[res.x, res.y, res.z] for res in hand_landmarks.landmark])
 
-actions = np.array(['A','B','C'])
+            # Avoid division by zero in normalization
+            max_vals = np.max(rh, axis=0)
+            min_vals = np.min(rh, axis=0)
+            diff = np.where(max_vals - min_vals == 0, 1e-6, max_vals - min_vals)
+            rh = (rh - min_vals) / diff
+
+            return rh.flatten()
+    # Always return same length vector
+    return np.zeros(21 * 3)
+
+# Path for exported data (where .npy will be saved)
+DATA_PATH = os.path.join('MP_Data')
+
+# All 26 uppercase letters (A–Z)
+actions = np.array([chr(i) for i in range(ord('A'), ord('Z')+1)])
 
 no_sequences = 30
 
-sequence_length = 30
+sequence_length = 50

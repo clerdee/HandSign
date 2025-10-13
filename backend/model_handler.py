@@ -57,26 +57,24 @@ def predict_sign(base64_image):
     image, results = mediapipe_detection(frame, hands)
     keypoints = extract_keypoints(results)
     sequence.append(keypoints)
-    sequence = sequence[-30:]  # keep last 30 frames
+    sequence = sequence[-50:]  # keep last 30 frames
 
     sign_output = "Processing..."
     confidence = 0.0
 
-    if len(sequence) == 30:
+    if len(sequence) >= 1:
         try:
             res = model.predict(np.expand_dims(sequence, axis=0))[0]
             predictions.append(np.argmax(res))
 
-            # Use stable prediction filtering
-            if np.unique(predictions[-10:])[0] == np.argmax(res):
-                if res[np.argmax(res)] > threshold:
-                    predicted_action = actions[np.argmax(res)]
-                    confidence = float(res[np.argmax(res)])
+            if res[np.argmax(res)] > threshold:
+                predicted_action = actions[np.argmax(res)]
+                confidence = float(res[np.argmax(res)])
 
-                    if len(sentence) == 0 or predicted_action != sentence[-1]:
-                        sentence.append(predicted_action)
+                if len(sentence) == 0 or predicted_action != sentence[-1]:
+                    sentence.append(predicted_action)
 
-                    sign_output = predicted_action
+                sign_output = predicted_action
 
             if len(sentence) > 1:
                 sentence = sentence[-1:]
