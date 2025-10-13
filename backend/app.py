@@ -9,11 +9,6 @@ model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
 model.load_weights("model.h5")
-
-colors = []
-for i in range(0,20):
-    colors.append((245,117,16))
-print(len(colors))
 def prob_viz(res, actions, input_frame, colors,threshold):
     output_frame = input_frame.copy()
     for num, prob in enumerate(res):
@@ -23,66 +18,84 @@ def prob_viz(res, actions, input_frame, colors,threshold):
     return output_frame
 
 
-# 1. New detection variables
+# 1. Detection state and smoothing parameters
 sequence = []
 sentence = []
-accuracy=[]
+accuracy = []
 predictions = []
-threshold = 0.6 
+
+# Prediction and smoothing parameters (aligned with server handler)
+threshold = 0.85              # min softmax confidence for top-1
+margin_threshold = 0.12       # top1 - top2 margin
+smoothing_window = 8          # number of recent frames to consider
+stability_ratio = 0.7         # fraction of window that must agree
+min_sequence_for_inference = 20  # don't infer until we have this many frames
 
 cap = cv2.VideoCapture(0)
 print("Camera opened:", cap.isOpened())
-# Set mediapipe model 
+# Set mediapipe model (higher accuracy + stability)
 with mp_hands.Hands(
-    model_complexity=0,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as hands:
+    static_image_mode=False,
+    max_num_hands=1,
+    model_complexity=1,
+    min_detection_confidence=0.6,
+    min_tracking_confidence=0.6) as hands:
     while cap.isOpened():
 
         # Read feed
         ret, frame = cap.read()
 
-        # Make detections
-        cropframe=frame[40:400,0:300]
-        # print(frame.shape)
-        frame=cv2.rectangle(frame,(0,40),(300,400),255,2)
-        # frame=cv2.putText(frame,"Active Region",(75,25),cv2.FONT_HERSHEY_COMPLEX_SMALL,2,255,2)
+        # Make detections (use ROI, show it on the full frame)
+        cropframe = frame[40:400, 0:300]
+        frame = cv2.rectangle(frame, (0, 40), (300, 400), 255, 2)
         image, results = mediapipe_detection(cropframe, hands)
-        # print(results)
 
-        # Draw landmarks
-        # draw_styled_landmarks(image, results)
-        # 2. Prediction logic
-        keypoints = extract_keypoints(results)
-        sequence.append(keypoints)
-        sequence = sequence[-50:]
+        # Append only when a hand is detected to avoid noisy zeros
+        if results and getattr(results, 'multi_hand_landmarks', None):
+            keypoints = extract_keypoints(results)
+            sequence.append(keypoints)
+            sequence = sequence[-50:]
+        else:
+            # No hand detected – clear short-term vote history
+            predictions = []
 
-        try: 
-            if len(sequence) == 50:
-                res = model.predict(np.expand_dims(sequence, axis=0))[0]
-                print(actions[np.argmax(res)])
-                predictions.append(np.argmax(res))
-                
-                
-            #3. Viz logic
-                if np.unique(predictions[-10:])[0]==np.argmax(res): 
-                    if res[np.argmax(res)] > threshold: 
-                        if len(sentence) > 0: 
-                            if actions[np.argmax(res)] != sentence[-1]:
-                                sentence.append(actions[np.argmax(res)])
-                                accuracy.append(str(res[np.argmax(res)]*100))
-                        else:
-                            sentence.append(actions[np.argmax(res)])
-                            accuracy.append(str(res[np.argmax(res)]*100)) 
+        try:
+            # Only infer when we have enough temporal context
+            if len(sequence) >= min_sequence_for_inference:
+                input_seq = np.expand_dims(sequence, axis=0)
+                res = model.predict(input_seq, verbose=0)[0]
 
-                if len(sentence) > 1: 
+                top_idx = int(np.argmax(res))
+                top_prob = float(res[top_idx])
+                second_prob = float(np.partition(res, -2)[-2]) if len(res) > 1 else 0.0
+
+                # Update recent predictions window
+                predictions.append(top_idx)
+                predictions = predictions[-smoothing_window:]
+
+                from collections import Counter
+                if predictions:
+                    counts = Counter(predictions)
+                    most_common_idx, most_common_count = counts.most_common(1)[0]
+                else:
+                    most_common_idx, most_common_count = top_idx, 0
+
+                required_count = max(1, int(np.ceil(stability_ratio * max(1, len(predictions)))))
+
+                is_confident = (top_prob >= threshold) and ((top_prob - second_prob) >= margin_threshold)
+                is_stable_vote = (most_common_idx == top_idx) and (most_common_count >= required_count)
+
+                if is_confident and is_stable_vote:
+                    predicted_action = actions[top_idx]
+                    if len(sentence) == 0 or predicted_action != sentence[-1]:
+                        sentence.append(predicted_action)
+                        accuracy.append(f"{int(round(top_prob*100))}%")
+
+                # Keep only the most recent finalized sign
+                if len(sentence) > 1:
                     sentence = sentence[-1:]
-                    accuracy=accuracy[-1:]
-
-                # Viz probabilities
-                # frame = prob_viz(res, actions, frame, colors,threshold)
-        except Exception as e:
-            # print(e)
+                    accuracy = accuracy[-1:]
+        except Exception:
             pass
             
         cv2.rectangle(frame, (0,0), (300, 40), (245, 117, 16), -1)

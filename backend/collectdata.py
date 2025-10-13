@@ -41,11 +41,11 @@ while True:
     frame=frame[40:400,0:300]
     interrupt = cv2.waitKey(10)
     if interrupt & 0xFF == ord('a'):
-        cv2.imwrite(directory+'A/'+str(count['a'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'A', f"{count['a']}.png"), frame)
     if interrupt & 0xFF == ord('b'):
-        cv2.imwrite(directory+'B/'+str(count['b'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'B', f"{count['b']}.png"), frame)
     if interrupt & 0xFF == ord('c'):
-        cv2.imwrite(directory+'C/'+str(count['c'])+'.png',frame)
+        cv2.imwrite(os.path.join(directory, 'C', f"{count['c']}.png"), frame)
     if interrupt & 0xFF == ord('d'):
         cv2.imwrite(os.path.join(directory, 'D', f"{count['d']}.png"), frame)
     if interrupt & 0xFF == ord('e'):
