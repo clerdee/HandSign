@@ -11,6 +11,56 @@ let stream = null;
 let cameraOn = false; 
 let intervalId = null; 
 
+// =========================
+// TEXT TO SPEECH (Web Speech API)
+// =========================
+const synth = window.speechSynthesis;
+let availableVoices = [];
+
+function refreshVoices() {
+    try {
+        availableVoices = synth.getVoices();
+    } catch (_) {
+        availableVoices = [];
+    }
+}
+
+// Load voices (async on some browsers)
+refreshVoices();
+if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = refreshVoices;
+}
+
+function pickBestVoice() {
+    if (!availableVoices || availableVoices.length === 0) return null;
+    const prefers = ['fil-PH', 'tl-PH', 'en-PH', 'en-US', 'en-GB'];
+
+    // Exact startsWith preference
+    for (const pref of prefers) {
+        const match = availableVoices.find(v => (v.lang || '').toLowerCase().startsWith(pref.toLowerCase()));
+        if (match) return match;
+    }
+
+    // Fuzzy contains
+    const fuzzy = availableVoices.find(v => /(fil|tl|ph)/i.test(v.lang || ''));
+    return fuzzy || availableVoices[0] || null;
+}
+
+function speakText(text) {
+    const content = (text || '').trim();
+    if (!content) return;
+
+    const utterance = new SpeechSynthesisUtterance(content);
+    const voice = pickBestVoice();
+    if (voice) utterance.voice = voice;
+    utterance.lang = voice?.lang || 'en-US';
+    utterance.rate = 0.95; // slightly slower for clarity
+    utterance.pitch = 1.0;
+
+    try { synth.cancel(); } catch (_) {}
+    synth.speak(utterance);
+}
+
 // frames to backend every second
 async function sendFrameToBackend() {
     if (!video || !cameraOn) return;
@@ -158,7 +208,8 @@ document.querySelectorAll('.button').forEach(button => {
     button.addEventListener('click', function() {
         const text = this.textContent.trim();
         if (text.includes('Play Audio')) {
-            alert('Audio playback feature');
+            const currentText = translatedText.textContent.replace(/"/g, '').trim();
+            speakText(currentText);
         } else if (text.includes('Save Translation')) {
             alert('Translation saved!');
         } else if (text.includes('Clear')) {
