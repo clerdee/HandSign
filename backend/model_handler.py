@@ -17,21 +17,27 @@ with open("model.json", "r") as json_file:
 model.load_weights("model.h5")
 print("✅ Model loaded successfully!")
 
-# Mediapipe setup
+# Mediapipe setup (tuned for better accuracy)
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
     static_image_mode=False,
     max_num_hands=1,
-    model_complexity=0,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
+    model_complexity=1,              # higher accuracy vs. speed
+    min_detection_confidence=0.6,    # reduce false detections
+    min_tracking_confidence=0.6      # improve tracking stability
 )
 
 # Detection memory
 sequence = []
 predictions = []
 sentence = []
-threshold = 0.8
+
+# Prediction and smoothing parameters
+threshold = 0.85              # min softmax confidence for top-1
+margin_threshold = 0.12       # top1 - top2 margin
+smoothing_window = 8          # number of recent frames to consider
+stability_ratio = 0.7         # fraction of window that must agree
+min_sequence_for_inference = 20  # don't infer until we have this many frames
 
 # ==============================
 # Helper: decode base64 image
@@ -55,27 +61,62 @@ def predict_sign(base64_image):
 
     frame = decode_base64_image(base64_image)
     image, results = mediapipe_detection(frame, hands)
-    keypoints = extract_keypoints(results)
-    sequence.append(keypoints)
-    sequence = sequence[-50:]  # keep last 30 frames
+
+    # Only append when a hand is detected to avoid noisy zeros
+    if results and getattr(results, 'multi_hand_landmarks', None):
+        keypoints = extract_keypoints(results)
+        sequence.append(keypoints)
+        # keep only last 50 frames (model was trained on 50)
+        sequence = sequence[-50:]
+    else:
+        # No hand detected – clear short-term vote history
+        predictions = []
 
     sign_output = "Processing..."
     confidence = 0.0
 
-    if len(sequence) >= 1:
+    # Only infer when we have enough temporal context
+    if len(sequence) >= min_sequence_for_inference:
         try:
-            res = model.predict(np.expand_dims(sequence, axis=0))[0]
-            predictions.append(np.argmax(res))
+            # Use last up to 50 frames to match training distribution
+            input_seq = np.expand_dims(sequence, axis=0)
+            res = model.predict(input_seq, verbose=0)[0]
 
-            if res[np.argmax(res)] > threshold:
-                predicted_action = actions[np.argmax(res)]
-                confidence = float(res[np.argmax(res)])
+            top_idx = int(np.argmax(res))
+            top_prob = float(res[top_idx])
+            # Get second best probability
+            if len(res) > 1:
+                second_prob = float(np.partition(res, -2)[-2])
+            else:
+                second_prob = 0.0
+
+            # Update recent predictions window
+            predictions.append(top_idx)
+            predictions[:] = predictions[-smoothing_window:]
+
+            # Compute stability in the voting window
+            from collections import Counter
+            if predictions:
+                counts = Counter(predictions)
+                most_common_idx, most_common_count = counts.most_common(1)[0]
+            else:
+                most_common_idx, most_common_count = top_idx, 0
+
+            required_count = max(1, int(np.ceil(stability_ratio * max(1, len(predictions)))))
+
+            is_confident = (top_prob >= threshold) and ((top_prob - second_prob) >= margin_threshold)
+            is_stable_vote = (most_common_idx == top_idx) and (most_common_count >= required_count)
+
+            if is_confident and is_stable_vote:
+                predicted_action = actions[top_idx]
+                confidence = round(top_prob, 2)
 
                 if len(sentence) == 0 or predicted_action != sentence[-1]:
                     sentence.append(predicted_action)
 
                 sign_output = predicted_action
 
+            # Keep only the most recent finalized sign in sentence
             if len(sentence) > 1:
                 sentence = sentence[-1:]
         except Exception as e:
