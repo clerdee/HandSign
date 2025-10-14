@@ -32,10 +32,10 @@
                 <video id="video" autoplay playsinline></video>
                 <div class="hand-overlay"></div>
             </div>
-            <div class="detection-status">
-                <strong>Detection Status:</strong> Hand detected | 
-                <strong>Confidence:</strong> 95% | 
-                <strong>Sign:</strong> Processing...
+            <div class="detection-status" id="detectionInfo">
+                <div><strong>Detection Status:</strong> <span id="detectionStatusText">Camera off</span></div>
+                <div><strong>Confidence:</strong> <span id="detectionConfidence">—</span></div>
+                <div><strong>Sign:</strong> <span id="detectedSign">—</span></div>
             </div>
         </section>
 
@@ -44,7 +44,7 @@
                 📄 Translated Text
             </div>
             <div class="translated-box">
-                <div class="translated-text" id="translatedText">"Kumusta"</div>
+                <div class="translated-text" id="translatedText" contenteditable="true" spellcheck="false" aria-label="Translated text (click to position cursor and edit)"></div>
             </div>
 
             <div class="controls-section">
@@ -55,7 +55,7 @@
                     <button class="button button-warning" id="backspaceBtn">⌫ Backspace</button>
                     <button class="button button-primary">🔊 Play Audio</button>
                     <button class="button button-secondary">🗑️ Clear</button>
-                    <button class="button button-success">💾 Save Translation</button>
+                    <!-- <button class="button button-success">💾 Save Translation</button> -->
                 </div>
             </div>
         </section>

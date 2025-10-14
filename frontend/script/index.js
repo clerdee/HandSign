@@ -6,6 +6,9 @@ const video = document.getElementById('video');
 const toggleBtn = document.getElementById('toggleCameraBtn');
 const cameraStatus = document.getElementById('cameraStatus');
 const translatedText = document.querySelector('.translated-text');
+const detectionStatusText = document.getElementById('detectionStatusText');
+const detectionConfidence = document.getElementById('detectionConfidence');
+const detectedSign = document.getElementById('detectedSign');
 
 let stream = null;
 let cameraOn = false; 
@@ -41,7 +44,6 @@ function pickBestVoice() {
         if (match) return match;
     }
 
-    // Fuzzy contains
     const fuzzy = availableVoices.find(v => /(fil|tl|ph)/i.test(v.lang || ''));
     return fuzzy || availableVoices[0] || null;
 }
@@ -98,15 +100,27 @@ async function sendFrameToBackend() {
         });
 
         const result = await response.json();
-        // Make sure backend returns { "sign": "..." }
-        if (result.sign && result.sign !== "Processing..." && result.sign !== "Error") {
-            let currentText = translatedText.textContent.replace(/"/g, '');
+        if (result.error) {
+            detectionStatusText.textContent = 'Error';
+            detectionConfidence.textContent = '—';
+            detectedSign.textContent = '—';
+        } else if (result.sign && result.sign !== "Processing..." && result.sign !== "Error") {
+            detectionStatusText.textContent = 'Hand detected';
+            detectedSign.textContent = result.sign;
+            detectionConfidence.textContent =
+                typeof result.confidence === 'number'
+                    ? `${Math.round(result.confidence * 100)}%`
+                    : '—';
+
+            const currentText = translatedText.textContent.trim();
             // Avoid repeating the same letter many times in a row
             if (!currentText.endsWith(result.sign)) {
-                translatedText.textContent = `"${currentText + result.sign}"`;
+                translatedText.textContent = currentText + result.sign;
             }
-        } else if (result.error) {
-            translatedText.textContent = `"Error: ${result.error}"`;
+        } else {
+            detectionStatusText.textContent = cameraOn ? 'Scanning...' : 'Camera off';
+            detectionConfidence.textContent = '—';
+            detectedSign.textContent = '—';
         }
     } catch (err) {
         console.error('Prediction error:', err);
@@ -122,6 +136,9 @@ async function startCamera() {
         video.srcObject = stream;
         cameraOn = true;
         updateCameraStatus(true);
+        detectionStatusText.textContent = 'Scanning...';
+        detectionConfidence.textContent = '—';
+        detectedSign.textContent = '—';
 
         // Start sending frames every 250ms; request is throttled by inflight flag
         intervalId = setInterval(sendFrameToBackend, 250);
@@ -138,6 +155,9 @@ function stopCamera() {
     }
     cameraOn = false;
     updateCameraStatus(false);
+    detectionStatusText.textContent = 'Camera off';
+    detectionConfidence.textContent = '—';
+    detectedSign.textContent = '—';
 
     if (intervalId) clearInterval(intervalId);
 }
@@ -167,43 +187,6 @@ toggleBtn.addEventListener('click', () => {
 updateCameraStatus(false);
 
 // =========================
-// FRAME CAPTURE + SEND TO BACKEND
-// =========================
-// function startFrameCapture() {
-//     const canvas = document.createElement('canvas');
-//     const context = canvas.getContext('2d');
-
-//     intervalId = setInterval(async () => {
-//         if (!cameraOn) return;
-
-//         canvas.width = video.videoWidth;
-//         canvas.height = video.videoHeight;
-//         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-//         const frameData = canvas.toDataURL('image/jpeg');
-
-//         try {
-//             const response = await fetch('/api/predict', {
-//                 method: 'POST',
-//                 headers: { 'Content-Type': 'application/json' },
-//                 body: JSON.stringify({ image: frameData })
-//             });
-
-//             const result = await response.json();
-//             if (result.translation) {
-//                 translatedText.textContent = `"${result.sign}"`;
-//             }
-//         } catch (err) {
-//             console.error('Error sending frame:', err);
-//         }
-//     }, 1000); 
-// }
-
-// function stopFrameCapture() {
-//     if (intervalId) clearInterval(intervalId);
-// }
-
-// =========================
 // REMINDER MODAL
 // =========================
 window.addEventListener('load', () => {
@@ -224,7 +207,7 @@ document.querySelectorAll('.button').forEach(button => {
     button.addEventListener('click', function() {
         const text = this.textContent.trim();
         if (text.includes('Play Audio')) {
-            const currentText = translatedText.textContent.replace(/"/g, '').trim();
+            const currentText = translatedText.textContent.trim();
             speakText(currentText);
         } else if (text.includes('Save Translation')) {
             alert('Translation saved!');
@@ -233,6 +216,64 @@ document.querySelectorAll('.button').forEach(button => {
         }
     });
 });
+
+// Helper functions to delete at cursor/selection within contenteditable translatedText
+function getCaretIndex(el) {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return el.textContent.length;
+    const range = sel.getRangeAt(0);
+    if (!el.contains(range.startContainer)) return el.textContent.length;
+    const preRange = range.cloneRange();
+    preRange.selectNodeContents(el);
+    preRange.setEnd(range.startContainer, range.startOffset);
+    return preRange.toString().length;
+}
+
+function setCaret(el, index) {
+    const selection = window.getSelection();
+    const range = document.createRange();
+    let remaining = index;
+    let targetNode = null;
+    let targetOffset = 0;
+
+    for (const child of el.childNodes) {
+        const len = child.textContent.length;
+        if (remaining <= len) {
+            targetNode = child.nodeType === Node.TEXT_NODE ? child : child.firstChild || child;
+            targetOffset = Math.max(0, Math.min(remaining, (targetNode?.textContent || '').length));
+            break;
+        } else {
+            remaining -= len;
+        }
+    }
+    if (!targetNode) {
+        targetNode = el;
+        targetOffset = el.childNodes.length;
+    }
+    range.setStart(targetNode, targetOffset);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function backspaceAtCursor(el) {
+    el.focus();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+
+        if (!range.collapsed) {
+            range.deleteContents();
+            return;
+        }
+    }
+    const text = el.textContent;
+    const caret = getCaretIndex(el);
+    if (caret <= 0) return;
+    const newText = text.slice(0, caret - 1) + text.slice(caret);
+    el.textContent = newText;
+    setCaret(el, caret - 1);
+}
 
 // =========================
 // LOGOUT + BACKSPACE BUTTONS
@@ -245,12 +286,10 @@ if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         const confirmLogout = confirm('Are you sure you want to logout?');
         if (confirmLogout) {
-            // Option 1: clear local/session storage
             localStorage.clear();
             sessionStorage.clear();
 
-            // Option 2: redirect to login or home page
-            window.location.href = 'login.html'; // change path if needed
+            window.location.href = 'login.html'; 
         }
     });
 }
@@ -258,10 +297,6 @@ if (logoutBtn) {
 // 🔹 Backspace Button Logic
 if (backspaceBtn) {
     backspaceBtn.addEventListener('click', () => {
-        let currentText = translatedText.textContent.replace(/"/g, '').trim();
-        if (currentText.length > 0) {
-            currentText = currentText.slice(0, -1);
-            translatedText.textContent = `"${currentText}"`;
-        }
+        backspaceAtCursor(translatedText);
     });
 }
