@@ -24,14 +24,15 @@ create_user_table()
 # ==============================
 @app.route('/api/predict', methods=['POST'])
 def predict():
-    data = request.get_json()
+    data = request.get_json() or {}
     image_data = data.get('image')
+    session_id = data.get('sessionId') or 'default'
 
     if not image_data:
         return jsonify({"error": "No image provided"}), 400
 
     try:
-        result = predict_sign(image_data)
+        result = predict_sign(image_data, session_id=session_id)
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
@@ -88,7 +89,7 @@ def get_users():
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECTm id, name, email, role FROM users")
+        cursor.execute("SELECT id, name, email, role FROM users")
         users = cursor.fetchall()
         conn.close()
 
