@@ -26,8 +26,6 @@ collectdata.py  →  saves raw images (Image/A, Image/B, …)
 data.py         →  converts images into Mediapipe keypoints (MP_Data/A, MP_Data/B, …)
 trainmodel.py   →  trains model on keypoints (model.h5 / model.keras)
 
-
-TO DO
-Ibang hand sign
-Reads many letters
-
+6. git fetch origin
+git pull origin main
+git restore ""
