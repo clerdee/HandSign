@@ -61,28 +61,43 @@ function speakText(text) {
     synth.speak(utterance);
 }
 
-// frames to backend every second
-async function sendFrameToBackend() {
-    if (!video || !cameraOn) return;
+// Predict request throttle + downscale/compress for speed
+let inflight = false;
+const SESSION_ID = (() => Math.random().toString(36).slice(2))();
 
+async function sendFrameToBackend() {
+    if (!video || !cameraOn || inflight) return;
+
+    const vw = video.videoWidth || 0;
+    const vh = video.videoHeight || 0;
+    if (!vw || !vh) return;
+
+    inflight = true;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // Downscale to reduce payload and CPU on server
+    const targetW = 320;
+    const scale = Math.min(1, targetW / vw);
+    canvas.width = Math.max(1, Math.floor(vw * scale));
+    canvas.height = Math.max(1, Math.floor(vh * scale));
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const base64Image = canvas.toDataURL('image/jpeg');
+    // Prefer WebP if supported; fallback to JPEG otherwise
+    let base64Image;
+    try {
+        base64Image = canvas.toDataURL('image/webp', 0.7);
+    } catch (_) {
+        base64Image = canvas.toDataURL('image/jpeg', 0.7);
+    }
 
     try {
         const response = await fetch('/api/predict', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: base64Image })
+            body: JSON.stringify({ image: base64Image, sessionId: SESSION_ID })
         });
 
         const result = await response.json();
-        console.log("🔹 Prediction result:", result);
-
         // Make sure backend returns { "sign": "..." }
         if (result.sign && result.sign !== "Processing..." && result.sign !== "Error") {
             let currentText = translatedText.textContent.replace(/"/g, '');
@@ -90,13 +105,14 @@ async function sendFrameToBackend() {
             if (!currentText.endsWith(result.sign)) {
                 translatedText.textContent = `"${currentText + result.sign}"`;
             }
-        }
-        else if (result.error) {
+        } else if (result.error) {
             translatedText.textContent = `"Error: ${result.error}"`;
         }
-        } catch (err) {
-            console.error('Prediction error:', err);
-        }
+    } catch (err) {
+        console.error('Prediction error:', err);
+    } finally {
+        inflight = false;
+    }
 }
 
 // When camera starts, begin sending frames
@@ -107,8 +123,8 @@ async function startCamera() {
         cameraOn = true;
         updateCameraStatus(true);
 
-        // Start sending frames every 500ms
-        intervalId = setInterval(sendFrameToBackend, 500);
+        // Start sending frames every 250ms; request is throttled by inflight flag
+        intervalId = setInterval(sendFrameToBackend, 250);
     } catch (err) {
         console.error('Error accessing camera:', err);
         alert('Could not access the camera.');
