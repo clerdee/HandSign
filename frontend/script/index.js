@@ -201,6 +201,106 @@ window.addEventListener('load', () => {
 });
 
 // =========================
+// SPEECH TO TEXT
+// =========================
+let recognition = null;
+let isListening = false;
+
+function setupSpeechRecognition() {
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+    } else if ('SpeechRecognition' in window) {
+        recognition = new SpeechRecognition();
+    } else {
+        alert('Speech recognition is not supported in your browser.');
+        return false;
+    }
+
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US'; // Default to English
+
+    recognition.onstart = function() {
+        isListening = true;
+        updateMicButtonState(true);
+    };
+
+    recognition.onresult = function(event) {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                finalTranscript += transcript;
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+
+        if (finalTranscript) {
+            const currentText = translatedText.textContent.trim();
+            translatedText.textContent = currentText + ' ' + finalTranscript;
+        }
+    };
+
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        stopSpeechRecognition();
+    };
+
+    recognition.onend = function() {
+        isListening = false;
+        updateMicButtonState(false);
+    };
+
+    return true;
+}
+
+function startSpeechRecognition() {
+    if (!recognition && !setupSpeechRecognition()) return;
+    
+    try {
+        recognition.start();
+    } catch (error) {
+        console.error('Error starting speech recognition:', error);
+    }
+}
+
+function stopSpeechRecognition() {
+    if (recognition) {
+        try {
+            recognition.stop();
+        } catch (error) {
+            console.error('Error stopping speech recognition:', error);
+        }
+    }
+    isListening = false;
+    updateMicButtonState(false);
+}
+
+function toggleSpeechRecognition() {
+    if (isListening) {
+        stopSpeechRecognition();
+    } else {
+        startSpeechRecognition();
+    }
+}
+
+function updateMicButtonState(active) {
+    const micBtn = document.getElementById('micBtn');
+    if (micBtn) {
+        if (active) {
+            micBtn.classList.add('active');
+            micBtn.textContent = '🎤 Stop Listening';
+        } else {
+            micBtn.classList.remove('active');
+            micBtn.textContent = '🎤 Microphone';
+        }
+    }
+}
+
+// =========================
 // BUTTON ACTIONS
 // =========================
 document.querySelectorAll('.button').forEach(button => {
