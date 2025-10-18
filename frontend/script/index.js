@@ -203,102 +203,93 @@ window.addEventListener('load', () => {
 // =========================
 // SPEECH TO TEXT
 // =========================
-let recognition = null;
+const micBtn = document.getElementById('micBtn');
+const speechTranslatedText = document.querySelector('.translated-text');
+
+const micStatus = document.createElement('div');
+micStatus.id = 'micStatus';
+micStatus.className = 'mic-status offline';
+micStatus.innerHTML = `<span class="status-dot"></span> MICROPHONE OFF`;
+const detectionInfo = document.getElementById('detectionInfo');
+if (detectionInfo && detectionInfo.parentNode) {
+    detectionInfo.parentNode.insertBefore(micStatus, detectionInfo.nextSibling);
+}
+
 let isListening = false;
 
-function setupSpeechRecognition() {
-    if ('webkitSpeechRecognition' in window) {
-        recognition = new webkitSpeechRecognition();
-    } else if ('SpeechRecognition' in window) {
-        recognition = new SpeechRecognition();
-    } else {
-        alert('Speech recognition is not supported in your browser.');
-        return false;
-    }
+function updateMicUI(active) {
+    micStatus.classList.toggle('online', active);
+    micStatus.classList.toggle('offline', !active);
+    micStatus.innerHTML = active
+        ? `<span class="status-dot"></span> MICROPHONE LISTENING - SPEAK NOW`
+        : `<span class="status-dot"></span> MICROPHONE OFF`;
 
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US'; // Default to English
-
-    recognition.onstart = function() {
-        isListening = true;
-        updateMicButtonState(true);
-    };
-
-    recognition.onresult = function(event) {
-        let interimTranscript = '';
-        let finalTranscript = '';
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-                finalTranscript += transcript;
-            } else {
-                interimTranscript += transcript;
-            }
-        }
-
-        if (finalTranscript) {
-            const currentText = translatedText.textContent.trim();
-            translatedText.textContent = currentText + ' ' + finalTranscript;
-        }
-    };
-
-    recognition.onerror = function(event) {
-        console.error('Speech recognition error:', event.error);
-        stopSpeechRecognition();
-    };
-
-    recognition.onend = function() {
-        isListening = false;
-        updateMicButtonState(false);
-    };
-
-    return true;
+    micBtn.textContent = active ? '🎤 Listening...' : '🎤 Microphone';
+    micBtn.style.backgroundColor = active ? '#e74c3c' : '';
 }
 
 function startSpeechRecognition() {
-    if (!recognition && !setupSpeechRecognition()) return;
-    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert('Speech Recognition is not supported. Use Chrome or Edge.');
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        console.log('🎤 Listening started');
+        isListening = true;
+        updateMicUI(true);
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        console.log('📝 Recognized:', transcript);
+
+        speechTranslatedText.textContent = speechTranslatedText.textContent.trim()
+            ? `${speechTranslatedText.textContent.trim()} ${transcript}`
+            : transcript;
+
+        speechTranslatedText.style.backgroundColor = '#d4edda';
+        setTimeout(() => speechTranslatedText.style.backgroundColor = '', 500);
+    };
+
+    recognition.onerror = (event) => {
+        console.error('❌ Speech error:', event.error);
+        if (event.error === 'not-allowed') {
+            alert('Microphone access was denied. Check browser permissions.');
+        } else if (event.error === 'network') {
+            alert('Network error: Speech recognition requires internet access.');
+        }
+        stopSpeechRecognition();
+    };
+
+    recognition.onend = () => {
+        console.log('🔴 Listening stopped');
+        isListening = false;
+        updateMicUI(false);
+    };
+
     try {
         recognition.start();
-    } catch (error) {
-        console.error('Error starting speech recognition:', error);
+    } catch (err) {
+        console.error('Failed to start recognition:', err);
     }
 }
 
 function stopSpeechRecognition() {
-    if (recognition) {
-        try {
-            recognition.stop();
-        } catch (error) {
-            console.error('Error stopping speech recognition:', error);
-        }
-    }
     isListening = false;
-    updateMicButtonState(false);
+    updateMicUI(false);
 }
 
-function toggleSpeechRecognition() {
-    if (isListening) {
-        stopSpeechRecognition();
-    } else {
-        startSpeechRecognition();
-    }
-}
-
-function updateMicButtonState(active) {
-    const micBtn = document.getElementById('micBtn');
-    if (micBtn) {
-        if (active) {
-            micBtn.classList.add('active');
-            micBtn.textContent = '🎤 Stop Listening';
-        } else {
-            micBtn.classList.remove('active');
-            micBtn.textContent = '🎤 Microphone';
-        }
-    }
-}
+micBtn.addEventListener('click', () => {
+    if (isListening) stopSpeechRecognition();
+    else startSpeechRecognition();
+});
 
 // =========================
 // BUTTON ACTIONS
