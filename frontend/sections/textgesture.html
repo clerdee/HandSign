@@ -1,0 +1,35 @@
+<!-- sections/textgesture.html -->
+<div class="textgesture-container">
+  <h2><i class="fa-solid fa-font"></i> Text to Gesture & Speech</h2>
+
+  <div class="textgesture-grid">
+    <div class="textgesture-input">
+      <label for="inputText"><i class="fa-solid fa-keyboard"></i> Enter Text</label>
+      <textarea id="inputText" placeholder="Type something here to translate..."></textarea>
+
+      <div class="textgesture-buttons">
+        <button id="translateGestureBtn" class="btn primary">
+          <i class="fa-solid fa-hand"></i> Show Gesture
+        </button>
+        <button id="speakTextBtn" class="btn success">
+          <i class="fa-solid fa-volume-high"></i> Speak
+        </button>
+        <button id="clearInputBtn" class="btn secondary">
+          <i class="fa-solid fa-eraser"></i> Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="textgesture-output">
+      <label><i class="fa-solid fa-hand-peace"></i> Gesture Output</label>
+      <div id="gestureDisplay" class="gesture-display">
+        <p class="placeholder-text">Youar translated gestures will appear here.</p>
+      </div>
+
+      <div class="textgesture-status">
+        <p>Status: <span id="gestureStatus">Waiting for input...</span></p>
+        <p id="speechStatus" class="mic-status">Speech: Ready</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+<div class="dashboard-section">
+  <div class="dashboard-header">
+    <h2><i class="fa-solid fa-chart-pie"></i> Dashboard Overview</h2>
+    <p>Comprehensive statistics of translation activities, user roles, and usage trends.</p>
+    <div class="export-controls">
+      <button id="exportCSV" class="btn export"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+      <button id="exportPDF" class="btn export"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3><i class="fa-solid fa-calendar-day"></i> Translations per Day</h3>
+      <canvas id="translationsChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="fa-solid fa-users"></i> User Role Distribution</h3>
+      <canvas id="usersChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="fa-solid fa-user-pen"></i> Translations per User</h3>
+      <canvas id="userUsageChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="fa-solid fa-keyboard"></i> Input Type Usage</h3>
+      <canvas id="inputTypeChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="fa-solid fa-language"></i> Output Type Usage</h3>
+      <canvas id="outputTypeChart"></canvas>
+    </div>
+  </div>
+</div>

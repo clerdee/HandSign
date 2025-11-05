@@ -1,0 +1,29 @@
+<!-- sections/profile.html -->
+  <div class="profile-container">
+    <h2><i class="fa-solid fa-user-gear"></i> Profile Settings</h2>
+
+    <div class="profile-picture">
+      <img id="profileImage" src="../media/default-user.jpg" alt="Profile Picture">
+      <input type="file" id="uploadProfilePic" accept="image/*">
+    </div>
+
+  <div class="profile-info">
+    <label for="username"><i class="fa-solid fa-user"></i> Username</label>
+    <input type="text" id="username" value="John Doe">
+
+    <label for="email"><i class="fa-solid fa-envelope"></i> Email</label>
+    <input type="email" id="email" value="johndoe@email.com">
+
+    <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+    <input type="password" id="password" placeholder="Enter new password">
+
+    <label for="repeatPassword"><i class="fa-solid fa-lock"></i> Repeat Password</label>
+    <input type="password" id="repeatPassword" placeholder="Repeat new password">
+  </div>
+
+    <button id="saveProfileBtn" class="save-btn">
+      <i class="fa-solid fa-floppy-disk"></i> Save Changes
+    </button>
+  </div>
+
+

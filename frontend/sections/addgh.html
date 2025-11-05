@@ -1,0 +1,92 @@
+<!-- ADD NEW GESTURE SECTION -->
+<div id="addgh-section" class="addgh-container">
+  <h2><i class="fa-solid fa-hand"></i> Add New Gesture</h2>
+  <p class="subtitle">Fill in the gesture details and open the camera to collect images.</p>
+
+  <div class="addgh-grid">
+    <!-- FORM PANEL -->
+    <div class="settings-panel">
+      <form id="addGestureForm">
+        <label for="gestureName"><i class="fa-solid fa-font"></i> Gesture Name</label>
+        <input
+          type="text"
+          id="gestureName"
+          placeholder="Enter gesture name (e.g., Hello)"
+          required
+        />
+
+        <label for="gestureLabel">Gesture Label</label>
+        <select id="gestureLabel" required>
+          <option value="" disabled selected>Select label type</option>
+          <option value="Letter">Letter</option>
+          <option value="Word">Word</option>
+          <option value="Special">Special</option>
+        </select>
+
+        <label for="gestureDescription"><i class="fa-solid fa-align-left"></i> Description</label>
+        <textarea
+          id="gestureDescription"
+          placeholder="Describe this gesture..."
+          rows="3"
+        ></textarea>
+
+        <input type="hidden" id="createdBy" value="1" />
+
+        <div class="form-actions">
+          <button id="collectGestureBtn" class="btn primary" type="button">
+            <i class="fa-solid fa-video"></i> Add New Gesture (Open Camera)
+          </button>
+          <button id="resetFormBtn" class="btn secondary" type="button">
+            <i class="fa-solid fa-rotate-left"></i> Reset
+          </button>
+        </div>
+        
+        <div id="trainModelBtnContainer" class="form-actions" style="margin-top: 20px; display: none;">
+          <button id="trainModelBtn" class="btn success" type="button">
+            <i class="fa-solid fa-brain"></i> Train Model with New Data
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- PREVIEW / STATUS PANEL -->
+    <div class="status-panel">
+      <div class="preview-section">
+        <label><i class="fa-solid fa-image"></i> Capture Status</label>
+        <div id="gesturePreview" class="gesture-preview">
+          <p class="placeholder-text">Camera not started yet.</p>
+        </div>
+      </div>
+
+      <div class="status-message" id="statusMessage">
+        <p>Fill the form, then click "Add New Gesture" to start camera collection.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GESTURES TABLE SECTION -->
+<div class="gestures-table-section">
+  <h3><i class="fa-solid fa-table-list"></i> Existing Gestures</h3>
+  <div class="table-container">
+    <table id="gesturesTable" class="display" style="width:100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Gesture Name</th>
+          <th>Label Type</th>
+          <th>Description</th>
+          <th>Created By</th>
+          <th>Date Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="js/addgh.js"></script>

@@ -1,0 +1,104 @@
+<!-- user-dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HandSign | User Dashboard</title>
+  <link rel="stylesheet" href="css/user.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="fa-solid fa-hand"></i>
+      <span>HandSign</span>
+    </div>
+
+    <ul class="nav-links">
+      <li class="active" data-section="translator"><i class="fa-solid fa-camera"></i> Translator</li>
+      <li data-section="gesture"><i class="fa-solid fa-hand"></i> Gesture</li>
+      <li data-section="settings"><i class="fa-solid fa-gear"></i> Settings</li>
+    </ul>
+
+    <button id="logoutBtn" class="logout-btn">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">👋 Welcome, User!</div>
+      <div class="user-info">
+        <img src="media/default-user.jpg" alt="User">
+        <div>
+          <h3>John Doe</h3>
+          <p>Active User</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Translator Section -->
+    <section id="translator" class="content-section active">
+      <div class="grid-container">
+        <div class="card camera-card">
+          <div class="card-header">
+            <h3>Camera Translator</h3>
+            <button id="toggleCameraBtn" class="btn primary">Turn On Camera</button>
+          </div>
+
+          <div class="camera-box">
+            <video id="video" autoplay></video>
+            <div id="cameraStatus" class="camera-status offline">
+              <span class="status-dot offline-dot"></span> CAMERA OFFLINE
+            </div>
+          </div>
+
+          <div class="detection-info">
+            <div id="loadingStatus" class="loading-status hidden">
+              <span class="spinner"></span> Processing...
+            </div>
+            <p>Status: <span id="detectionStatusText">Waiting...</span></p>
+            <p>Confidence: <span id="detectionConfidence">—</span></p>
+            <p>Detected Sign: <span id="detectedSign">—</span></p>
+            <p id="micStatusText" class="mic-status">Mic: Off</p>
+          </div>
+        </div>
+
+        <div class="card translate-card">
+          <div class="card-header">
+            <h3>Text Translation</h3>
+          </div>
+
+          <div class="translated-box">
+            <div id="translatedText" class="translated-text"></div>
+          </div>
+
+          <div class="controls-section">
+            <div class="controls-buttons">
+              <button id="backspaceBtn" class="button warning"><i class="fa-solid fa-delete-left"></i> Backspace</button>
+              <button id="clearTextBtn" class="button secondary"><i class="fa-solid fa-eraser"></i> Clear</button>
+              <button id="playAudioBtn" class="button success"><i class="fa-solid fa-volume-high"></i> Speak</button>
+              <button id="micBtn" class="button primary"><i class="fa-solid fa-microphone"></i> Microphone</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gesture" class="content-section hidden">
+      <div id="textgesture-container"></div>
+    </section>
+
+    <section id="settings" class="content-section hidden">
+      <div id="profile-container"></div>
+    </section>
+
+  </main>
+    <script src="js/user-dashboard.js" defer></script>
+    <script src="js/profile.js" defer></script>
+    <script src="js/textgesture.js" defer></script>
+</body>
+</html>

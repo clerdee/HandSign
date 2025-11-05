@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HandSign Admin Dashboard</title>
+
+  <link rel="stylesheet" href="css/admin.css" />
+
+  <!-- DataTables Core + Buttons CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" />
+</head>
+
+<body>
+  <div class="admin-container">
+    <aside class="sidebar">
+      <h2 class="logo">HandSign</h2>
+      <nav>
+        <ul>
+          <li><a href="#" class="nav-link active" data-section="dashboard">Dashboard</a></li>
+          <li><a href="#" class="nav-link" data-section="users">Users</a></li>
+          <li><a href="#" class="nav-link" data-section="translation">Translations</a></li>
+          <li><a href="#" class="nav-link" data-section="handgestures">Hand Gestures</a></li>
+          <li><a href="#" id="logoutBtn" class="nav-link">Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h1 id="sectionTitle">Dashboard</h1>
+      <div id="contentArea"></div>
+    </main>
+  </div>
+
+  <!-- Core Dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <!-- DataTables Core + Buttons Scripts -->
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+  <!-- Export Dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Project Scripts -->
+  <script src="js/admin.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/users.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/addgh.js"></script>
+</body>
+</html>
