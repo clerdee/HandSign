@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user || user.role !== "admin") {
     alert("Access denied! Admins only.");
-    window.location.href = "handsign.html"; 
+    window.location.href = "handsign.html";
     return;
   }
 
@@ -34,9 +34,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const html = await res.text();
       contentArea.innerHTML = html;
 
+      const oldScript = document.getElementById("dynamic-section-script");
+      if (oldScript) {
+        oldScript.remove();
+      }
+
       if (scriptPath) {
         const script = document.createElement("script");
+        script.id = "dynamic-section-script";
         script.src = scriptPath;
+        script.defer = true;
         document.body.appendChild(script);
       }
     } catch (err) {
@@ -73,6 +80,12 @@ document.addEventListener("DOMContentLoaded", () => {
           sectionTitle.textContent = "Hand Gestures";
           loadSection("sections/addgh.html", "js/addgh.js");
           break;
+        
+        case "feedback":
+          sectionTitle.textContent = "User Feedback";
+          loadSection("sections/admin_feedback.html", "js/admin_feedback.js");
+          break;
+
         default:
           sectionTitle.textContent = "Not Found";
           contentArea.innerHTML = `<p>Section not found.</p>`;

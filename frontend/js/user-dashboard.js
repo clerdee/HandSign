@@ -1,8 +1,5 @@
-// ===============================
-// user-dashboard.js
-// ===============================
 document.addEventListener("DOMContentLoaded", () => {
-  
+ 
   // ===============================
   // DISPLAY BASIC PROFILE INFO IN HEADER
   // ===============================
@@ -45,8 +42,74 @@ document.addEventListener("DOMContentLoaded", () => {
   const sections = document.querySelectorAll(".content-section");
   const video = document.getElementById("video");
   const profileContainer = document.getElementById("profile-container");
-  const reminderModal = document.getElementById("reminderModal");
-  const closeModalBtn = document.getElementById("closeModalBtn");
+  
+  const welcomeModal = document.getElementById("welcomeModal");
+  const modalOkayBtn = document.getElementById("modalOkayBtn");
+  
+  const reminderModal = document.getElementById("reminderModal"); 
+  const closeModalBtn = document.getElementById("closeModalBtn"); 
+
+  // ===============================
+  // STATE VARIABLES
+  // ===============================
+  let cameraOn = false;
+  let stream = null;
+  let hasShownCameraReminder = false; 
+  let isWarningShowing = false;       
+
+  // ===============================
+  // WELCOME MODAL LOGIC
+  // ===============================
+  if (welcomeModal && modalOkayBtn) {
+    if (!sessionStorage.getItem("hasSeenWelcomeModal")) {
+      welcomeModal.classList.remove("hidden"); 
+    } else {
+      welcomeModal.classList.add("hidden"); 
+    }
+
+    modalOkayBtn.addEventListener("click", () => {
+      welcomeModal.classList.add("hidden");
+      sessionStorage.setItem("hasSeenWelcomeModal", "true");
+    });
+  }
+
+  // ===============================
+  // NOTIFICATION HELPER FUNCTION
+  // ===============================
+  function showNotification(message, type = 'info', duration = 5000) {
+    const container = document.getElementById("notification-container");
+    if (!container) return;
+
+    if (type === 'warning' && isWarningShowing) {
+        return;
+    }
+    
+    if (type === 'warning') {
+        isWarningShowing = true;
+    }
+
+    const notif = document.createElement("div");
+    notif.className = `notification ${type}`;
+    
+    const icon = type === 'info' ? 'fa-info-circle' : 'fa-exclamation-triangle';
+    
+    notif.innerHTML = `
+      <i class="fas ${icon}"></i>
+      <p>${message}</p>
+    `;
+    
+    container.appendChild(notif);
+
+    setTimeout(() => {
+      notif.style.animation = "slideOut 0.3s forwards";
+      notif.addEventListener('animationend', () => {
+        notif.remove();
+        if (type === 'warning') {
+            isWarningShowing = false; 
+        }
+      });
+    }, duration);
+  }
 
   // ===============================
   // NAVIGATION BAR FUNCTIONALITY
@@ -68,9 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // -------------------------------
-      // HIDE TOPBAR IF PROFILE SECTION
-      // -------------------------------
       const topbar = document.querySelector(".topbar");
       if (targetSection === "settings") {
         topbar.style.display = "none";
@@ -138,9 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
   // CAMERA FUNCTIONALITY
   // ===============================
-  let cameraOn = false;
-  let stream = null;
-
   async function toggleCamera() {
     if (!toggleCameraBtn || !video) return;
 
@@ -154,6 +211,12 @@ document.addEventListener("DOMContentLoaded", () => {
         cameraStatus.classList.remove("offline");
         cameraStatus.innerHTML = `<span class="status-dot"></span> CAMERA ACTIVE`;
         detectionStatusText.textContent = "Detecting...";
+
+        if (!hasShownCameraReminder) {
+            showNotification("For best results, keep your hand centered and at a good distance.", 'info');
+            hasShownCameraReminder = true;
+        }
+
       } catch (error) {
         alert("Unable to access camera. Please check permissions.");
       }
@@ -215,6 +278,9 @@ document.addEventListener("DOMContentLoaded", () => {
         detectionStatusText.textContent = "No hand detected";
         detectedSign.textContent = "—";
         detectionConfidence.textContent = "—";
+
+        showNotification("Hand not detected. Please move closer or check your lighting.", 'warning');
+
       }
     } catch (error) {
       console.error("Prediction request failed:", error);
@@ -302,6 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       localStorage.removeItem("user");
+      sessionStorage.removeItem("hasSeenWelcomeModal");
       window.location.href = "handsign.html";
     });
   }

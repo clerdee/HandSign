@@ -19,7 +19,13 @@ from db import (
     register_user,
     login_user,
     get_connection,
-    update_labels_dict
+    update_labels_dict,
+    create_user_demographics_table,
+    get_age_by_user_id,  
+    get_all_ages,
+    create_feedback_table, 
+    submit_feedback,               
+    get_all_feedback_with_user_details        
 )
 
 labels_dict = update_labels_dict()
@@ -61,7 +67,9 @@ def get_next_folder():
 # ==============================
 create_user_table()
 create_profile_pic_table()
+create_user_demographics_table()
 create_gestures_table()
+create_feedback_table()
 ensure_default_admin()
 print("✅ Database initialized and ready.")
 
@@ -73,14 +81,22 @@ def register():
     """✅ Handles registration."""
     name = request.form.get('name')
     email = request.form.get('email')
+    age = request.form.get('age')  # <-- ADDED
     password = request.form.get('password')
     role = request.form.get('role', 'user')
     file = request.files.get('profilePic')
 
-    if not name or not email or not password:
+    if not name or not email or not password or not age: # <-- ADDED 'not age'
         return jsonify({"message": "All fields are required"}), 400
 
-    success = register_user(name, email, password, role)
+    try:
+        age_int = int(age) # <-- ADDED
+        if age_int <= 0:
+             return jsonify({"message": "Age must be a positive number"}), 400
+    except ValueError:
+        return jsonify({"message": "Age must be a valid number"}), 400
+
+    success = register_user(name, email, age_int, password, role) # <-- ADDED 'age_int'
     if not success:
         return jsonify({"message": "Email already exists"}), 409
 
@@ -107,7 +123,6 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    from db import login_user
     data = request.json
     email = data.get('email')
     password = data.get('password')
@@ -116,7 +131,10 @@ def login():
         return jsonify({"message": "Email and password are required"}), 400
 
     user = login_user(email, password)
+    
     if user:
+        age = get_age_by_user_id(user[0])
+        
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT image_path FROM profile_pictures WHERE user_id = ?", (user[0],))
@@ -137,7 +155,8 @@ def login():
                 "id": user[0],
                 "name": user[1],
                 "email": user[2],
-                "role": user[4],
+                "age": age,     
+                "role": user[4],      
                 "profilePic": profilePic
             }
         }), 200
@@ -516,7 +535,6 @@ def get_translations():
 # ==============================
 # DASHBOARD STATISTICS ROUTES
 # ==============================
-
 # TRANSLATIONS PER USER
 @app.route("/api/translations_per_user", methods=["GET"])
 def translations_per_user():
@@ -538,7 +556,6 @@ def translations_per_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # INPUT TYPE USAGE
 @app.route("/api/input_type_usage", methods=["GET"])
 def input_type_usage():
@@ -558,7 +575,6 @@ def input_type_usage():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # OUTPUT TYPE USAGE
 @app.route("/api/output_type_usage", methods=["GET"])
 def output_type_usage():
@@ -577,7 +593,6 @@ def output_type_usage():
         return jsonify(results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 # TRANSLATIONS PER DAY
 @app.route('/api/translations_per_day', methods=['GET'])
@@ -602,7 +617,6 @@ def get_translations_per_day():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # USERS COUNT BY ROLE
 @app.route('/api/users_count_roles', methods=['GET'])
 def get_users_count_roles():
@@ -624,6 +638,32 @@ def get_users_count_roles():
         return jsonify(counts)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# AGE DEMOHRAPHICS DATA
+@app.route('/api/admin/age_data', methods=['GET'])
+def get_age_data():
+    """✅ Endpoint for the admin age graph."""
+    all_ages = get_all_ages()
+
+    age_groups = {
+        "1-10": 0,
+        "11-18": 0,
+        "19-25": 0,
+        "26-35": 0,
+        "36-50": 0,
+        "51+": 0
+    }
+    for age in all_ages:
+        if not age: 
+            continue 
+        if age <= 10: age_groups["1-10"] += 1
+        elif age <= 18: age_groups["11-18"] += 1
+        elif age <= 25: age_groups["19-25"] += 1
+        elif age <= 35: age_groups["26-35"] += 1
+        elif age <= 50: age_groups["36-50"] += 1
+        else: age_groups["51+"] += 1
+
+    return jsonify(age_groups), 200
 
 #  ==============================
 # FETCH GESTURES (for DataTables)
@@ -666,6 +706,33 @@ def get_gestures():
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
+
+# ==============================
+# FEEDBACK ROUTES
+# ==============================
+@app.route('/api/feedback', methods=['POST'])
+def handle_feedback():
+    """✅ Handles submission of user feedback."""
+    data = request.json
+    user_id = data.get('user_id')
+    rating = data.get('rating')
+    comment = data.get('comment')
+
+    if not user_id or not rating:
+        return jsonify({"message": "User ID and rating are required"}), 400
+
+    success = submit_feedback(user_id, rating, comment)
+    if success:
+        return jsonify({"message": "Feedback submitted successfully"}), 200
+    else:
+        return jsonify({"message": "Failed to submit feedback"}), 500
+
+@app.route('/api/admin/feedback', methods=['GET'])
+def get_all_feedback():
+    """✅ Fetches all feedback for the admin panel. (Add admin auth!)"""
+    # TODO: Add authentication to ensure only admins can access this!
+    feedback = get_all_feedback_with_user_details()
+    return jsonify(feedback), 200
 
 # ==============================
 # SERVE STATIC GESTURE

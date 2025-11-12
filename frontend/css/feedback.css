@@ -1,0 +1,162 @@
+/* css/feedback.css */
+
+/*
+* Main container style.
+* This borrows from your '.textgesture-container' and '.card' styles
+* to make it look like a native part of your dashboard.
+*/
+.feedback-container {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-width: 800px; /* Keeps the form from getting too wide */
+  margin: 0 auto;  /* Centers the form in the content area */
+}
+
+/*
+* Header style, matching '.textgesture-container h2'
+*/
+.feedback-container h2 {
+  color: #4338ca;
+  margin-bottom: 8px; /* A bit less space than the subtitle */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/*
+* Subtitle text
+*/
+.feedback-container p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/*
+* Label style, matching '.textgesture-input label'
+*/
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/*
+* Star Rating
+*/
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse; /* Reverses the order for the hover trick */
+  justify-content: flex-start; /* Aligns stars to the left */
+  font-size: 2.5rem;
+  padding: 0;
+}
+
+.star-rating input[type="radio"] {
+  display: none; /* Hides the ugly default radio button */
+}
+
+.star-rating label {
+  color: #ddd; 
+  cursor: pointer;
+  padding: 0 0.1em;
+  transition: color 0.2s;
+}
+
+.star-rating label::before {
+  content: '★';
+}
+
+/* This makes the hover effect work (all stars to the "left" of the one you're hovering) */
+.star-rating input[type="radio"]:hover ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #ffd700; /* Gold */
+}
+
+/* This styles the selected star and all stars "left" of it */
+.star-rating input[type="radio"]:checked ~ label {
+  color: #f7b731; /* A nice orange-gold */
+}
+
+/*
+* Textarea style, matching '#inputText'
+*/
+#feedbackComment {
+  width: 100%;
+  min-height: 150px;
+  padding: 15px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafc;
+  resize: vertical;
+  font-family: 'Poppins', sans-serif;
+}
+
+#feedbackComment:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/*
+* Submit button, matching '.button.primary'
+* (Note: Your HTML uses 'btn primary', but your CSS uses '.button.primary'.
+* I'll style the ID to be safe, but you could fix this by making your
+* button class="button primary" in the HTML)
+*/
+#submitFeedbackBtn {
+  width: 100%;
+  padding: 12px 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  
+  /* Borrowing from .button.primary */
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#submitFeedbackBtn:hover {
+  opacity: 0.9;
+}
+
+/*
+* Status message (for "Thanks!" or "Error!")
+*/
+#feedbackStatus {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#feedbackStatus.hidden {
+  display: none;
+}
+
+#feedbackStatus.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+#feedbackStatus.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}

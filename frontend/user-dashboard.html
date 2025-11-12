@@ -7,6 +7,7 @@
   <title>HandSign | User Dashboard</title>
   <link rel="stylesheet" href="css/user.css" />
   <link rel="stylesheet" href="css/profile.css" />
+  <link rel="stylesheet" href="css/feedback.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
@@ -20,6 +21,7 @@
     <ul class="nav-links">
       <li class="active" data-section="translator"><i class="fa-solid fa-camera"></i> Translator</li>
       <li data-section="gesture"><i class="fa-solid fa-hand"></i> Gesture</li>
+      <li data-section="feedback"><i class="fa-solid fa-comments"></i> Feedback</li>
       <li data-section="settings"><i class="fa-solid fa-gear"></i> Settings</li>
     </ul>
 
@@ -92,13 +94,35 @@
       <div id="textgesture-container"></div>
     </section>
 
+    <section id="feedback" class="content-section hidden">
+    </section>
+
     <section id="settings" class="content-section hidden">
       <div id="profile-container"></div>
     </section>
 
+    <div id="notification-container"></div>
   </main>
+
+  <div id="welcomeModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Welcome to HandSign!</h2>
+      <p>For the best translation experience, please keep these tips in mind:</p>
+      <ul>
+        <li><strong>Allow Camera Access:</strong> The translator can't work if it can't see you!</li>
+        <li><strong>Good Lighting:</strong> Make sure your hand is well-lit and clear, not in shadow.</li>
+        <li><strong>Clear Background:</strong> Avoid cluttered or "busy" backgrounds (like patterns or posters).</li>
+        <li><strong>Full Hand Visible:</strong> Ensure your entire hand and wrist are in the camera's view.</li>
+        <li><strong>Camera Range:</strong> Keep your hand close and directly in front of the camera for best accuracy.</li>
+        <!-- <li><strong>One Sign at a Time:</strong> Sign clearly and pause for a moment after each letter.</li> -->
+      </ul>
+      <button id="modalOkayBtn" class="button primary">Got It!</button>
+    </div>
+  </div>
+
     <script src="js/user-dashboard.js" defer></script>
     <script src="js/profile.js" defer></script>
     <script src="js/textgesture.js" defer></script>
+    <script src="js/feedback.js" defer></script>
 </body>
 </html>

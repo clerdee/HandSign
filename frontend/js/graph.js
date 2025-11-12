@@ -28,18 +28,14 @@ $(document).ready(function () {
         waitForElement("#translationsChart", (canvas) => {
           const ctx = canvas.getContext("2d");
           if (window.translationsChartInstance) window.translationsChartInstance.destroy();
-
-          const labels = data.map((d) => d.date);
-          const values = data.map((d) => d.count);
-
           window.translationsChartInstance = new Chart(ctx, {
             type: "line",
             data: {
-              labels,
+              labels: data.map((d) => d.date),
               datasets: [
                 {
                   label: "Translations per Day",
-                  data: values,
+                  data: data.map((d) => d.count),
                   borderColor: "#4CAF50",
                   backgroundColor: "rgba(76,175,80,0.2)",
                   fill: true,
@@ -75,7 +71,6 @@ $(document).ready(function () {
         waitForElement("#usersChart", (canvas) => {
           const ctx = canvas.getContext("2d");
           if (window.usersChartInstance) window.usersChartInstance.destroy();
-
           window.usersChartInstance = new Chart(ctx, {
             type: "pie",
             data: {
@@ -114,18 +109,14 @@ $(document).ready(function () {
         waitForElement("#userUsageChart", (canvas) => {
           const ctx = canvas.getContext("2d");
           if (window.userUsageChartInstance) window.userUsageChartInstance.destroy();
-
-          const labels = data.map((u) => u.user_name);
-          const values = data.map((u) => u.count);
-
           window.userUsageChartInstance = new Chart(ctx, {
             type: "bar",
             data: {
-              labels,
+              labels: data.map((u) => u.user_name),
               datasets: [
                 {
                   label: "Translations by User",
-                  data: values,
+                  data: data.map((u) => u.count),
                   backgroundColor: "#42A5F5",
                 },
               ],
@@ -157,17 +148,13 @@ $(document).ready(function () {
         waitForElement("#inputTypeChart", (canvas) => {
           const ctx = canvas.getContext("2d");
           if (window.inputTypeChartInstance) window.inputTypeChartInstance.destroy();
-
-          const labels = data.map((d) => d.input_type);
-          const values = data.map((d) => d.count);
-
           window.inputTypeChartInstance = new Chart(ctx, {
             type: "doughnut",
             data: {
-              labels,
+              labels: data.map((d) => d.input_type),
               datasets: [
                 {
-                  data: values,
+                  data: data.map((d) => d.count),
                   backgroundColor: ["#FFCE56", "#4BC0C0", "#9966FF"],
                 },
               ],
@@ -199,17 +186,13 @@ $(document).ready(function () {
         waitForElement("#outputTypeChart", (canvas) => {
           const ctx = canvas.getContext("2d");
           if (window.outputTypeChartInstance) window.outputTypeChartInstance.destroy();
-
-          const labels = data.map((d) => d.output_type);
-          const values = data.map((d) => d.count);
-
           window.outputTypeChartInstance = new Chart(ctx, {
             type: "doughnut",
             data: {
-              labels,
+              labels: data.map((d) => d.output_type),
               datasets: [
                 {
-                  data: values,
+                  data: data.map((d) => d.count),
                   backgroundColor: ["#36A2EB", "#FF6384", "#FF9F40"],
                 },
               ],
@@ -231,6 +214,56 @@ $(document).ready(function () {
   }
 
   // --------------------------
+  // 6️⃣ USER AGE DEMOGRAPHICS 
+  // --------------------------
+  function loadAgeChart() {
+    $.ajax({
+      url: "/api/admin/age_data",
+      method: "GET",
+      success: function (data) {
+        waitForElement("#ageChart", (canvas) => {
+          const ctx = canvas.getContext("2d");
+          if (window.ageChartInstance) window.ageChartInstance.destroy();
+
+          const labels = Object.keys(data);
+          const values = Object.values(data);
+
+          window.ageChartInstance = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: "User Count",
+                  data: values,
+                  backgroundColor: "#FF6384",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    stepSize: 1, 
+                  },
+                },
+              },
+              plugins: {
+                title: { display: true, text: "User Age Demographics", font: { size: 16 } },
+              },
+            },
+          });
+        });
+      },
+      error: function () {
+        console.error("Error loading age demographics data.");
+      },
+    });
+  }
+
+  // --------------------------
   // INITIAL LOAD
   // --------------------------
   loadTranslationsChart();
@@ -238,6 +271,7 @@ $(document).ready(function () {
   loadUserUsageChart();
   loadInputTypeChart();
   loadOutputTypeChart();
+  loadAgeChart(); 
 
   // ==============================
   // EXPORT FUNCTIONS
@@ -253,6 +287,7 @@ $(document).ready(function () {
       { name: "Translations per User", instance: window.userUsageChartInstance },
       { name: "Input Type Usage", instance: window.inputTypeChartInstance },
       { name: "Output Type Usage", instance: window.outputTypeChartInstance },
+      { name: "User Age Demographics", instance: window.ageChartInstance }, 
     ];
 
     charts.forEach((c) => {
@@ -262,7 +297,7 @@ $(document).ready(function () {
         data.push(["Chart:", c.name]);
         data.push(["Label", "Value"]);
         labels.forEach((label, i) => data.push([label, values[i]]));
-        data.push(["", ""]); 
+        data.push(["", ""]);
       }
     });
 
@@ -298,19 +333,22 @@ $(document).ready(function () {
       { name: "Translations per User", canvas: "#userUsageChart" },
       { name: "Input Type Usage", canvas: "#inputTypeChart" },
       { name: "Output Type Usage", canvas: "#outputTypeChart" },
+      { name: "User Age Demographics", canvas: "#ageChart" },
     ];
 
     charts.forEach((c) => {
       const canvas = document.querySelector(c.canvas);
       if (canvas) {
         const imgData = canvas.toDataURL("image/png", 1.0);
-        pdf.text(c.name, 10, y);
-        pdf.addImage(imgData, "PNG", 10, y + 5, 180, 80);
-        y += 95;
-        if (y > 250) {
+
+        if (y + 95 > 280) { 
           pdf.addPage();
           y = 15;
         }
+
+        pdf.text(c.name, 10, y);
+        pdf.addImage(imgData, "PNG", 10, y + 5, 180, 80);
+        y += 95;
       }
     });
 

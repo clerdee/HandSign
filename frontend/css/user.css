@@ -483,3 +483,157 @@ video {
   from { opacity: 0; transform: scale(0.8); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* ==============================
+   NOTIFICATION STYLES
+   ============================== */
+#notification-container {
+  position: fixed;
+  top: 80px; /* Below the topbar */
+  right: 20px;
+  z-index: 10000;
+  width: 320px;
+}
+
+.notification {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  border-left: 5px solid;
+  opacity: 0;
+  transform: translateX(20px);
+  animation: slideIn 0.3s forwards;
+}
+
+/* Your info color (blue) */
+.notification.info {
+  border-color: #6366f1;
+}
+
+/* Your warning color (orange) */
+.notification.warning {
+  border-color: #f59e0b;
+}
+
+.notification i {
+  font-size: 1.5rem;
+  margin-right: 12px;
+}
+
+.notification.info i {
+  color: #6366f1;
+}
+
+.notification.warning i {
+  color: #f59e0b;
+}
+
+.notification p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+/* ==============================
+   WELCOME MODAL STYLES
+   ============================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* This class will be added by JS to hide it */
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px; /* Matches your .card style */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 25px 30px;
+  width: 90%;
+  max-width: 550px;
+  z-index: 9999;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.hidden .modal-content {
+  transform: scale(0.9);
+}
+
+.modal-content h2 {
+  color: #4338ca; /* Your primary purple */
+  margin-bottom: 15px;
+}
+
+.modal-content p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.modal-content ul {
+  list-style: none; /* Remove default bullets */
+  padding-left: 0;
+  margin-bottom: 25px;
+}
+
+.modal-content li {
+  position: relative;
+  padding-left: 30px; /* Space for a custom icon */
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* Custom bullet point (a checkmark) */
+.modal-content li::before {
+  content: '✅';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.9rem;
+}
+
+/* Match your existing .button.primary style */
+#modalOkayBtn {
+  width: 100%;
+  font-size: 1.1rem;
+}
